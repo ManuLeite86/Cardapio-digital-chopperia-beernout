@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEERNOUT - Chopperia & Espettaria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .title-font {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+        }
+        .menu-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid #f59e0b;
+            transition: all 0.3s ease;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.3);
+        }
+        .price-pill {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-weight: 600;
+            color: #0f172a;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
+        }
+        .beer-bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: #f59e0b;
+            transition: width 0.3s ease;
+        }
+        .tab-button:hover::after,
+        .tab-button.active::after {
+            width: 100%;
+        }
+        .tab-button.active {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        .menu-item:hover {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+        .prescription-paper {
+            background-color: #f8fafc;
+            background-image: 
+                linear-gradient(#e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #1e293b;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .prescription-paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(248, 250, 252, 0.8) 0%, rgba(248, 250, 252, 0) 20%, rgba(248, 250, 252, 0) 80%, rgba(248, 250, 252, 0.8) 100%);
+            pointer-events: none;
+        }
+        .prescription-header {
+            border-bottom: 2px dashed #94a3b8;
+        }
+        .prescription-stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #dc2626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(15deg);
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .combo-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+        }
+        .combo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.3);
+        }
+        .pill-shape {
+            border-radius: 50px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pill-inner {
+            background: #1e293b;
+            border-radius: 50px;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 20px;
+        }
+        .pill-divider {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 80%;
+            background-color: #f59e0b;
+        }
+        /* Background logo watermark */
+        .bg-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .bg-logo img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Logo Watermark - Substitua com sua própria logo -->
+    <div class="bg-logo">
+        <!-- Substitua o SVG abaixo com sua própria logo -->
+        <!-- Você pode usar uma tag img: <img src="caminho-para-sua-logo.png" alt="Beernout Logo"> -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="#f59e0b">
+            <path d="M250 50c-110.5 0-200 89.5-200 200s89.5 200 200 200 200-89.5 200-200S360.5 50 250 50zm0 20c99.4 0 180 80.6 180 180s-80.6 180-180 180S70 349.4 70 250 150.6 70 250 70z"/>
+            <!-- Beer Mug -->
+            <path d="M180 140v220h140v-220h-140zm120 20v180h-100v-180h100z"/>
+            <path d="M310 140h40c11 0 20 9 20 20v100c0 11-9 20-20 20h-40v-20h40v-100h-40v-20z"/>
+            <!-- Foam -->
+            <path d="M180 140c0-10 10-20 20-20h100c10 0 20 10 20 20H180z"/>
+            <!-- Beer Bubbles -->
+            <circle cx="210" cy="200" r="8"/>
+            <circle cx="230" cy="250" r="6"/>
+            <circle cx="250" cy="220" r="10"/>
+            <circle cx="270" cy="280" r="7"/>
+            <circle cx="290" cy="190" r="9"/>
+            <!-- Text -->
+            <path d="M150 390h10v-60h15v-10h-40v10h15v60zm40-70h10l20 70h-10l-5-17.5h-20l-5 17.5h-10l20-70zm10 42.5l-7.5-27.5-7.5 27.5h15zm30-42.5h10v30l20-30h12.5l-20 27.5 22.5 42.5h-12.5l-17.5-32.5-5 7.5v25h-10v-70zm60 0h10v60h25v10h-35v-70zm40 0h40v10h-30v20h25v10h-25v20h30v10h-40v-70zm50 0h10v60h25v10h-35v-70z"/>
+        </svg>
+    </div>
+
+    <!-- Beer bubbles background animation -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden" id="bubble-container"></div>
+
+    <div class="min-h-screen flex flex-col relative">
+        <!-- Header -->
+        <header class="py-8 px-4 relative z-10">
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex items-center mb-6 md:mb-0">
+                        <div class="mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 21h6v2H9v-2zm3-19C8.14 2 4 6.14 4 11v8h16v-8c0-4.86-4.14-9-8-9zm.5 11h-1V8.5h1V13zm0-6h-1V5.5h1V7z"/>
+                                <path d="M11 2h2v3h-2z" fill="#f8fafc"/>
+                                <path d="M7 22h10v1H7z" fill="#f8fafc"/>
+                            </svg>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h1 class="title-font text-5xl md:text-6xl text-amber-500">BEERNOUT</h1>
+                            <p class="text-slate-300 tracking-wider">CHOPPERIA & ESPETTARIA</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-500 text-slate-900 px-6 py-3 rounded-lg transform rotate-2 shadow-lg">
+                        <p class="font-bold text-lg">Sua dose diária contra o estresse!</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="sticky top-0 bg-slate-900 bg-opacity-90 backdrop-blur-md z-20 shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex overflow-x-auto py-4 scrollbar-hide">
+                    <button class="tab-button active whitespace-nowrap px-5 py-2 mx-2" data-target="receituario">
+                        💊 Receituário
+                    </button>
+                    <button class="tab-button whitespace-nowrap px-5 py-2 mx-2" data-target="espetos">
+                        💉 Doses Únicas
+                    </button>
+                    <button class="tab-button whitespace-nowrap px-5 py-2 mx-2" data-target="caldos">
+                        🌡️ Temperatura
+                    </button>
+                    <button class="tab-button whitespace-nowrap px-5 py-2 mx-2" data-target="combos">
+                        💊 Combos Terapêuticos
+                    </button>
+                    <button class="tab-button whitespace-nowrap px-5 py-2 mx-2" data-target="bebidas">
+                        🍺 Bebidas
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- Receituário (Prescription) Section -->
+            <section id="receituario" class="tab-content mb-12">
+                <div class="prescription-paper p-8 rounded-lg max-w-3xl mx-auto">
+                    <div class="prescription-header pb-4 mb-6 relative">
+                        <h2 class="title-font text-3xl text-slate-800">RECEITUÁRIO MÉDICO</h2>
+                        <p class="text-slate-600">Dr. BEERNOUT - CRM: 320154 - 2025</p>
+                        <div class="prescription-stamp">
+                            APROVADO<br>BEERNOUT
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <p class="text-slate-800 mb-2"><strong>Paciente:</strong> Cliente Estressado</p>
+                        <p class="text-slate-800 mb-4"><strong>Diagnóstico:</strong> Estresse crônico, ansiedade laboral, síndrome de burnout</p>
+                        
+                        <div class="border-l-4 border-amber-500 pl-4 py-2 bg-amber-50 rounded-r-lg">
+                            <p class="text-slate-800 font-medium">Prescrevo ao paciente uma visita imediata ao BEERNOUT para tratamento intensivo com doses terapêuticas de:</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-2 underline">Medicação Principal:</h3>
+                            <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                                <li>Rivotril (carne) - 1 dose</li>
+                                <li>Frontal (frango) - 1 dose</li>
+                                <li>Narcisista (picanha) - 1 dose</li>
+                                <li>Bipolar (500g de costela) - Para casos graves</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-2 underline">Acompanhamento:</h3>
+                            <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                                <li>Torre de Chopp Babylon - 2,5L</li>
+                                <li>Balde de Heineken - Para tratamento em grupo</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-8 pt-4 border-t-2 border-dashed border-slate-300">
+                        <p class="text-slate-800 italic">"Tomar conforme necessário. Repetir a dose sempre que o estresse voltar."</p>
+                        <p class="text-slate-600 mt-4">🧘‍♂️ O refúgio do CLT</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Espetos Section -->
+            <section id="espetos" class="tab-content hidden">
+                <div class="mb-8">
+                    <h2 class="title-font text-4xl text-amber-500 mb-6 flex items-center">
+                        <span class="mr-3">💉</span> DOSES ÚNICAS (ESPETTOS)
+                    </h2>
+                    <p class="text-slate-300 mb-8 max-w-2xl">Nossa seleção de espetos terapêuticos para aliviar qualquer sintoma de estresse. Cada dose é cuidadosamente preparada para máxima eficácia.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Rivotril</h3>
+                                <span class="price-pill">R$ 7,00</span>
+                            </div>
+                            <p class="text-slate-400">Carne</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Frontal</h3>
+                                <span class="price-pill">R$ 7,00</span>
+                            </div>
+                            <p class="text-slate-400">Frango</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Clonazepam</h3>
+                                <span class="price-pill">R$ 5,00</span>
+                            </div>
+                            <p class="text-slate-400">Salsichão</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Tupiramato</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                            <p class="text-slate-400">Carne com bacon</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Zolpidem</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                            <p class="text-slate-400">Frango com bacon</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Fluoxetina</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                            <p class="text-slate-400">Cupim com cebola</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Narcisista</h3>
+                                <span class="price-pill">R$ 12,00</span>
+                            </div>
+                            <p class="text-slate-400">Picanha</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Ansiedade</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                            <p class="text-slate-400">Coração</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Sertralina</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                            <p class="text-slate-400">Frango com queijo</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Nervoso</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                            <p class="text-slate-400">Carne de sol com queijo</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Diazepam</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                            <p class="text-slate-400">Costela com barbecue</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Estresse</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                            <p class="text-slate-400">Queijo coalho</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Exaustão</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                            <p class="text-slate-400">Pão de alho</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Bipolar</h3>
+                                <span class="price-pill">R$ 25,00</span>
+                            </div>
+                            <p class="text-slate-400">500g de costela</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Caldos Section -->
+            <section id="caldos" class="tab-content hidden">
+                <div class="mb-8">
+                    <h2 class="title-font text-4xl text-amber-500 mb-6 flex items-center">
+                        <span class="mr-3">🌡️</span> PRA ELEVAR A TEMPERATURA
+                    </h2>
+                    <p class="text-slate-300 mb-8 max-w-2xl">Caldinhos reconfortantes para aquecer o corpo e a alma depois de um dia estressante.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="menu-card p-6 rounded-lg flex items-center">
+                            <div class="mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold text-lg">Hora Extra</h3>
+                                    <span class="price-pill">R$ 8,00</span>
+                                </div>
+                                <p class="text-slate-400">Caldinho de camarão</p>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-6 rounded-lg flex items-center">
+                            <div class="mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold text-lg">Adicional Noturno</h3>
+                                    <span class="price-pill">R$ 8,00</span>
+                                </div>
+                                <p class="text-slate-400">Caldinho de feijão</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Combos Section -->
+            <section id="combos" class="tab-content hidden">
+                <div class="mb-8">
+                    <h2 class="title-font text-4xl text-amber-500 mb-6 flex items-center">
+                        <span class="mr-3">💊</span> COMBOS TERAPÊUTICOS
+                    </h2>
+                    <p class="text-slate-300 mb-8 max-w-2xl">Tratamentos intensivos para casos mais graves de estresse. Prescrição médica não obrigatória.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="combo-card p-6 rounded-lg relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-24 h-24">
+                                <div class="absolute transform rotate-45 bg-amber-500 text-slate-900 font-bold py-1 text-center text-xs w-36 top-8 -right-10">
+                                    RECOMENDADO
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="pill-shape inline-block mb-4">
+                                    <div class="pill-inner">
+                                        <span class="font-bold">Recisão Contratual</span>
+                                        <div class="pill-divider"></div>
+                                        <span class="ml-4">R$ 60,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-slate-300 mb-3">1 carne com bacon + 1 carne com queijo + 1 carne com bacon + 1 torre de chopp</p>
+                            <p class="text-amber-400 italic text-sm">"O fim de contrato mais saboroso que existe."</p>
+                        </div>
+                        
+                        <div class="combo-card p-6 rounded-lg">
+                            <div class="mb-4">
+                                <div class="pill-shape inline-block mb-4">
+                                    <div class="pill-inner">
+                                        <span class="font-bold">Trabalho Temporário</span>
+                                        <div class="pill-divider"></div>
+                                        <span class="ml-4">R$ 15,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-slate-300 mb-3">1 carne com bacon ou frango com bacon + 1 refrigerante lata</p>
+                            <p class="text-amber-400 italic text-sm">"Leve, rápido e delicado."</p>
+                        </div>
+                        
+                        <div class="combo-card p-6 rounded-lg">
+                            <div class="mb-4">
+                                <div class="pill-shape inline-block mb-4">
+                                    <div class="pill-inner">
+                                        <span class="font-bold">Estabilidade</span>
+                                        <div class="pill-divider"></div>
+                                        <span class="ml-4">R$ 18,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-slate-300 mb-3">1 espetinho picanha + 1 chopp de vinho</p>
+                            <p class="text-amber-400 italic text-sm">"Quando você encontra, não larga mais."</p>
+                        </div>
+                        
+                        <div class="combo-card p-6 rounded-lg relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-24 h-24">
+                                <div class="absolute transform rotate-45 bg-amber-500 text-slate-900 font-bold py-1 text-center text-xs w-36 top-8 -right-10">
+                                    POPULAR
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="pill-shape inline-block mb-4">
+                                    <div class="pill-inner">
+                                        <span class="font-bold">Férias Coletiva</span>
+                                        <div class="pill-divider"></div>
+                                        <span class="ml-4">R$ 60,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-slate-300 mb-3">1 balde Heineken + 1 peça de costela</p>
+                            <p class="text-amber-400 italic text-sm">"Pra curtir com a galera e esquecer o chefe."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bebidas Section -->
+            <section id="bebidas" class="tab-content hidden">
+                <div class="mb-8">
+                    <h2 class="title-font text-4xl text-amber-500 mb-6 flex items-center">
+                        <span class="mr-3">🍺</span> CHOPPS
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Babylon Pilsen</h3>
+                                <span class="price-pill">R$ 35,00</span>
+                            </div>
+                            <p class="text-slate-400">Torre 2,5L</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Chopp de Vinho (Alamoa)</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                            <p class="text-slate-400">300ml</p>
+                        </div>
+                    </div>
+                    
+                    <h2 class="title-font text-4xl text-amber-500 mb-6 flex items-center">
+                        <span class="mr-3">🪣</span> INDO ATRÁS DO BALDE
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Balde de Heineken</h3>
+                                <span class="price-pill">R$ 38,00</span>
+                            </div>
+                            <p class="text-slate-400">5 long necks</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Balde de Skol Beats</h3>
+                                <span class="price-pill">R$ 38,00</span>
+                            </div>
+                            <p class="text-slate-400">5 latas</p>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-lg">Balde de Stella</h3>
+                                <span class="price-pill">R$ 29,00</span>
+                            </div>
+                            <p class="text-slate-400">5 long necks</p>
+                        </div>
+                    </div>
+                    
+                    <h2 class="title-font text-4xl text-amber-500 mb-6 flex items-center">
+                        <span class="mr-3">🧃</span> PRA HIDRATAR
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Água</h3>
+                                <span class="price-pill">R$ 3,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Água com gás</h3>
+                                <span class="price-pill">R$ 4,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">H2O</h3>
+                                <span class="price-pill">R$ 7,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Coca-Cola lata / zero</h3>
+                                <span class="price-pill">R$ 6,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Guaraná lata</h3>
+                                <span class="price-pill">R$ 6,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Guaraná 1L</h3>
+                                <span class="price-pill">R$ 10,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Coca-Cola 1L</h3>
+                                <span class="price-pill">R$ 12,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Monster</h3>
+                                <span class="price-pill">R$ 12,50</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Heineken long neck</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Stella long neck</h3>
+                                <span class="price-pill">R$ 6,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Budweiser long neck</h3>
+                                <span class="price-pill">R$ 7,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Brahma latão</h3>
+                                <span class="price-pill">R$ 7,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Skol Beats</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Alcatrão, mel e limão</h3>
+                                <span class="price-pill">R$ 8,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-card p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold">Pitú (quartinho)</h3>
+                                <span class="price-pill">R$ 4,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-slate-900 py-8 px-4 mt-12">
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-6 md:mb-0 text-center md:text-left">
+                        <h2 class="title-font text-3xl text-amber-500">BEERNOUT</h2>
+                        <p class="text-slate-400">🧘‍♂️ O refúgio do CLT</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                        <button class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                            </svg>
+                            Reservar Mesa
+                        </button>
+                        <button class="bg-slate-800 hover:bg-slate-700 text-amber-500 font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Como Chegar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create beer bubbles
+            const bubbleContainer = document.getElementById('bubble-container');
+            const bubbleCount = 50;
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('beer-bubble');
+                
+                // Random size between 5px and 15px
+                const size = Math.random() * 10 + 5;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                
+                // Random position
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.bottom = `-${size}px`;
+                
+                // Random animation duration between 4s and 12s
+                const duration = Math.random() * 8 + 4;
+                bubble.style.animationDuration = `${duration}s`;
+                
+                // Random delay
+                bubble.style.animationDelay = `${Math.random() * 5}s`;
+                
+                bubbleContainer.appendChild(bubble);
+            }
+            
+            // Tab navigation
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.classList.add('hidden'));
+                    
+                    // Show the selected tab content
+                    const targetId = button.getAttribute('data-target');
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9626a16022a44f21',t:'MTc1MzA1ODI1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
